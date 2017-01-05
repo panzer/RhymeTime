@@ -34,8 +34,6 @@ function newText() {
   colors = [];
   words = s.split(/(\W+)/);
   words = words.join("`").toLowerCase().replaceAll("`'`","").split("`");
-  //groups.push([words[0]]);
-  //colors.push(color(random(100,255), random(100,255), random(100,255)));
   analyzeWords();
 }
 
