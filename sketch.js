@@ -65,8 +65,8 @@ function analyzeWords() {
     if (!/\W+/.test(words[index])) {
       // Start an async request with an anonymous callback
       httpGetAsync('http://rhymebrain.com/talk?function=getRhymes&word=' + words[index],function(data){
-        //span = createSpan(words[index]);
-        //span.parent(output);
+        span = createSpan(words[index]);
+        span.parent(output);
         var cRhymes = [];
 
         // Take all rhymes with an accuracy score over 200
@@ -97,19 +97,20 @@ function analyzeWords() {
           colors.push(wColor);
         }
         // Make background color
-        //span.style('background-color', wColor);
+        span.style('background-color', wColor);
         // Go to next word and do it again
         index++;
         analyzeWords();
       });
     }else{
       // The term is not actually a word, it's a space or punctuation.
-      //span = createSpan(words[index]);
-      //pan.parent(output);
+      span = createSpan(words[index]);
+      span.parent(output);
       index++;
       analyzeWords();
     }
   }else{
+    createSpan("<br /><br />").parent(output);
     showRhymesOnly();
   }
 }
