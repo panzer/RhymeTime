@@ -26,7 +26,7 @@ function setup() {
 // Button was pressed, let's get the ball rolling
 function newText() {
   var s = textfield.value();
-  createSpan("<br /><br />").parent(output);
+  createSpan("<br/><br/><br/>").parent(output);
   // Reset everything
   index = 0;
   rhymes = [];
@@ -34,15 +34,16 @@ function newText() {
   colors = [];
   words = s.split(/(\W+)/);
   words = words.join("`").toLowerCase().replaceAll("`'`","").split("`");
-  groups.push([words[0]]);
-  colors.push(color(random(100,255), random(100,255), random(100,255)));
+  //groups.push([words[0]]);
+  //colors.push(color(random(100,255), random(100,255), random(100,255)));
   analyzeWords();
 }
 
 function showRhymesOnly() {
   for (var w = 0; w < words.length; w++) {
     var word = words[w];
-    span = createSpan(word);
+    if (/\r|\n/.exec(word)) span = createSpan("<br/>");
+    else span = createSpan(word);
     span.parent(output);
     if (!/\W+/.test(word)) {
       for (var g = 0; g < groups.length; g++) {
@@ -104,13 +105,14 @@ function analyzeWords() {
       });
     }else{
       // The term is not actually a word, it's a space or punctuation.
-      span = createSpan(words[index]);
+      if (/\r|\n/.exec(words[index])) span = createSpan("<br/>");
+      else span = createSpan(words[index]);
       span.parent(output);
       index++;
       analyzeWords();
     }
   }else{
-    createSpan("<br /><br />").parent(output);
+    createSpan("<br/><br/>").parent(output);
     showRhymesOnly();
   }
 }
