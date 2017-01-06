@@ -29,9 +29,8 @@ The library would likely include functions such as:
 * etc.
 
 ## Acknowledgements
+* [RhymeBrain API] (http://rhymebrain.com/api.html)
 * [p5.js] (https://p5js.org)
-* [tinycolor.js] (https://bgrins.github.io/TinyColor/)
-* __Most crucially:__ [RhymeBrain API] (http://rhymebrain.com/api.html)
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
