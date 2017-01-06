@@ -15,11 +15,13 @@ The purpose of this project was to simply have fun coding something that involve
 So uh... what do all these colors mean?
 The script outputs the text that is inputted, but highlights groups of rhyming words.
 Rhyming words will be highlighted with the same color.
+#### Sample Output
+![sample](/images/sample_output.png?raw=true)
 _Disclaimer_: Some colors may look similar even if words do not rhyme.
 
 ## Future Plans
 #### Short Term
-Improve the script to ignore capitalization and apostrophies instead of removing them entirely.
+Improve the script to ignore capitalization and apostrophes instead of removing them entirely.
 
 #### Long Term
 If my schedule permits, I may turn this into a small library based on the RhymeBrain API which extends String.
