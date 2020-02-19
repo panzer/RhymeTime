@@ -108,7 +108,6 @@ function replaceDiacritics(str) {
 
 // Setting up the page
 function setup() {
-  console.log(this);
   noCanvas();
   textfield = select("#input");
   output = select('#output');
