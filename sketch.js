@@ -149,6 +149,26 @@ function showRhymesOnly() {
   }
 }
 
+function findGroup(cRhymes, wColor) {
+  var foundGroup = false;
+  // Going backwards, loop through all groups
+  for (var j = groups.length-1; j >= 0; j--) {
+    var group = groups[j];
+    if (cRhymes.indexOf(group[0]) != -1) {
+      // It rhymed, put it in that group and use that color
+      foundGroup = true;
+      groups[j].push(words[index]);
+      wColor = colors[j];
+    }
+  }
+  if (!foundGroup) {
+    // We didn't find any rhymes, make it its own group and own color
+    usecolor = bcolor;
+    groups.push([words[index]])
+    colors.push(wColor);
+  }
+}
+
 // Goes through each term, waiting for the previous to be finished
 function analyzeWords() {
   // We'll do this until we get to the last term
@@ -169,25 +189,8 @@ function analyzeWords() {
         cRhymes.push(words[index]);
         rhymes.push(cRhymes);
 
-        var foundGroup = false;
         var wColor = color(random(100,240), random(100,240), random(100,240));
-
-        // Going backwards, loop through all groups
-        for (var j = groups.length-1; j >= 0; j--) {
-          var group = groups[j];
-          if (cRhymes.indexOf(group[0]) != -1) {
-            // It rhymed, put it in that group and use that color
-            foundGroup = true;
-            groups[j].push(words[index]);
-            wColor = colors[j];
-          }
-        }
-        if (!foundGroup) {
-          // We didn't find any rhymes, make it its own group and own color
-          usecolor = bcolor;
-          groups.push([words[index]])
-          colors.push(wColor);
-        }
+        findGroup(cRhymes, wColor);
         // Make background color
         span.style('background-color', wColor);
         // Go to next word and do it again
