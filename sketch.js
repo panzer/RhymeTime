@@ -154,8 +154,8 @@ function showRhymesOnly() {
 function analyzeWords() {
   // We'll do this until we get to the last term
   if (index < words.length) {
-    // Only look for rhymes if it's a word, not a space
-    if (!/\W+/.test(words[index])) {
+    // Only look for rhymes if it's a word, not a space or empty string
+    if (!/\W+/.test(words[index]) && !(words[index] === "")) {
       // Start an async request with an anonymous callback
       httpGetAsync('http://rhymebrain.com/talk?function=getRhymes&word=' + words[index],function(data){
         span = createSpan(words[index]);
