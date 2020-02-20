@@ -5,6 +5,7 @@ var words; // An array to store all words to analyze
 var rhymes = []; // Stores all of the words' rhymes (not really used)
 var groups = []; // Stores the words in groups based on their rhyme
 var colors = []; // The colors that words will be (coorespond to the groups)
+var rhymingWordLists = []; // Stores all the rhymes that come back from RhymeBrain
 var bcolor;
 var index = 0; // The current word we're looking at
 
