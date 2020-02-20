@@ -5,6 +5,7 @@ var words; // An array to store all words to analyze
 var rhymes = []; // Stores all of the words' rhymes (not really used)
 var groups = []; // Stores the words in groups based on their rhyme
 var colors = []; // The colors that words will be (coorespond to the groups)
+var rhymingWordLists = []; // Stores all the rhymes that come back from RhymeBrain
 var bcolor;
 var index = 0; // The current word we're looking at
 
@@ -108,7 +109,6 @@ function replaceDiacritics(str) {
 
 // Setting up the page
 function setup() {
-  console.log(this);
   noCanvas();
   textfield = select("#input");
   output = select('#output');
@@ -120,7 +120,7 @@ function setup() {
 function newText() {
   var s = textfield.value();
   createSpan("<br/><br/><br/>").parent(output);
-  // Reset everything
+  // Reset everything except rhymingWordLists
   index = 0;
   rhymes = [];
   groups = [];
@@ -150,53 +150,92 @@ function showRhymesOnly() {
   }
 }
 
+function showAllGroups() {
+  for (var w = 0; w < words.length; w++) {
+    var word = words[w];
+    if (/\r|\n/.exec(word)) span = createSpan("<br/>");
+    else span = createSpan(word);
+    span.parent(output);
+    if (!/\W+/.test(word)) {
+      for (var g = 0; g < groups.length; g++) {
+        var group = groups[g];
+        if (group.indexOf(word) != -1) {
+          var ci = groups.indexOf(group);
+          span.style('background-color', colors[ci]);
+        }
+      }
+    }
+  }
+}
+
+function findGroup(cRhymes, wColor) {
+  var foundGroup = false;
+  // Going backwards, loop through all groups
+  for (var j = groups.length-1; j >= 0; j--) {
+    var group = groups[j];
+    if (cRhymes.indexOf(group[0]) != -1) {
+      // It rhymed, put it in that group and use that color
+      foundGroup = true;
+      groups[j].push(words[index]);
+      wColor = colors[j];
+    }
+  }
+  if (!foundGroup) {
+    // We didn't find any rhymes, make it its own group and own color
+    usecolor = bcolor;
+    groups.push([words[index]])
+    colors.push(wColor);
+  }
+}
+
 // Goes through each term, waiting for the previous to be finished
 function analyzeWords() {
   // We'll do this until we get to the last term
   if (index < words.length) {
-    // Only look for rhymes if it's a word, not a space
-    if (!/\W+/.test(words[index])) {
-      // Start an async request with an anonymous callback
-      httpGetAsync('http://rhymebrain.com/talk?function=getRhymes&word=' + words[index],function(data){
-        span = createSpan(words[index]);
-        span.parent(output);
-        var cRhymes = [];
+    // Only look for rhymes if it's a word, not a space or empty string
+    if (!/\W+/.test(words[index]) && !(words[index] === "")) {
+      var cRhymes = [];
+      var wColor = color(random(100,240), random(100,240), random(100,240));
+      // create UI for the results as they roll in
+      var span = createSpan(words[index]);
+      span.parent(output);
 
-        // Take all rhymes with an accuracy score over 200
-        for (var k = 0; k < data.length; k++) {
-          if (data[k]["score"] > 200) cRhymes.push(data[k]["word"]);
+      // First looks through our previous RhymeBrain responses to see if we already have the answer
+      for (var k = 0; k < rhymingWordLists.length; k++){
+        if(rhymingWordLists[k].includes(words[index])){
+          cRhymes = rhymingWordLists[k];
+          // Set up color matching
+          findGroup(cRhymes, wColor);
+          // Add group color
+          span.style('background-color', wColor);
+          index++;
+          analyzeWords();
         }
-        // Add the word itself to the list of rhymes, so it can rhyme with itself
-        cRhymes.push(words[index]);
-        rhymes.push(cRhymes);
+      };
 
-        var foundGroup = false;
-        var wColor = color(random(100,240), random(100,240), random(100,240));
-
-        // Going backwards, loop through all groups
-        for (var j = groups.length-1; j >= 0; j--) {
-          var group = groups[j];
-          if (cRhymes.indexOf(group[0]) != -1) {
-            // It rhymed, put it in that group and use that color
-            foundGroup = true;
-            groups[j].push(words[index]);
-            wColor = colors[j];
+      if(cRhymes.length == 0){
+        // Start an async request with an anonymous callback
+        // rhymesFound is an Array of Objects
+        // example of Object within rhymesFound returned for the word "moon":
+        // Object {flags: "bc", freq: 21, score: 300, syllables: "1", word: "noon"}
+        httpGetAsync('https://rhymebrain.com/talk?function=getRhymes&word=' + words[index],function(rhymesFound){
+          for (var k = 0; k < rhymesFound.length; k++) {
+            // Add the words to the list
+            cRhymes.push(rhymesFound[k]["word"]);
           }
-        }
-        if (!foundGroup) {
-          // We didn't find any rhymes, make it its own group and own color
-          usecolor = bcolor;
-          groups.push([words[index]])
-          colors.push(wColor);
-        }
-        // Make background color
-        span.style('background-color', wColor);
-        // Go to next word and do it again
-        index++;
-        analyzeWords();
-      });
+          // Add the word itself to the list of rhymes, so it can rhyme with itself
+          cRhymes.push(words[index]);
+          rhymingWordLists.push(cRhymes);
+          // Set up color matching
+          findGroup(cRhymes, wColor);
+          // Add group color
+          span.style('background-color', wColor);
+          index++;
+          analyzeWords();
+        });
+      }
     }else{
-      // The term is not actually a word, it's a space or punctuation.
+      // Display and move on if it's a space or punctuation.
       if (/\r|\n/.exec(words[index])) span = createSpan("<br/>");
       else span = createSpan(words[index]);
       span.parent(output);
@@ -205,6 +244,10 @@ function analyzeWords() {
     }
   }else{
     createSpan("<br/><br/>").parent(output);
+
+    // print a paragraph with only the rhymes showing a background color
+    showAllGroups();
+    // print a paragraph all words and rhymes showing a background color
     showRhymesOnly();
   }
 }
